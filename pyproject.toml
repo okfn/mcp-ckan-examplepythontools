@@ -1,0 +1,17 @@
+[project]
+name = "mcp-ckan-examplepythontools"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Patricio Del Boca", email = "patriciodelboca@gmail.com" }
+]
+requires-python = ">=3.14"
+dependencies = []
+
+[project.scripts]
+mcp-ckan-examplepythontools = "mcp_ckan_examplepythontools:main"
+
+[build-system]
+requires = ["uv_build>=0.10.8,<0.11.0"]
+build-backend = "uv_build"
