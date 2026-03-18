@@ -7,7 +7,9 @@ authors = [
     { name = "Patricio Del Boca", email = "patriciodelboca@gmail.com" }
 ]
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "pandas>=3.0.1",
+]
 
 [project.scripts]
 mcp-ckan-examplepythontools = "mcp_ckan_examplepythontools:main"
