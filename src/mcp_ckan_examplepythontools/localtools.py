@@ -1,31 +1,66 @@
-import json
-
 import pandas as pd
 
+from mcp.types import CallToolResult, TextContent
 
-def historic_project_per_country_iadb():
+from mcp_server import DataToolOutput
+
+
+def historic_project_per_country_iadb() -> DataToolOutput:
     """Returns the historic count of projects by country of the IADB."""
     source = "https://data.iadb.org/file/download/fc342d1e-fdc9-4590-8d47-c4499a89d381"
+    structured_content = {"sources": [source]}
+    try:
+        df = (pd.read_csv(source)
+            .groupby("cntry_nm")
+            .size()
+            .reset_index(name="count")
+            .sort_values("count", ascending=False)
+        )
+        records = df.values.tolist()
 
-    df = pd.read_csv(source) \
-        .groupby('cntry_nm') \
-        .size() \
-        .reset_index(name='count') \
-        .sort_values('count', ascending=False)
+        # Build markdown list
+        markdown_lines = ["## Project Count by Country\n"]
+        for country, count in records:
+            markdown_lines.append(f"- **{country}**: {count} projects")
+        markdown_lines.append(f"Source of the data: {source}")
+        message = "\n".join(markdown_lines)
 
-    result = df.to_dict(orient='records')
-    return json.dumps(result, default=str)
+        content = TextContent(type="text", text=message)
+        structured_content["table"] = records
+        return CallToolResult(content=[content], structuredContent=structured_content)
+    except Exception:
+        message = "There was an internal error processing the data."
+        content = TextContent(type="text", text=message)
+        return CallToolResult(content=[content], structuredContent=structured_content, isError=True)
 
-def cantidad_de_aprobaciones_por_sector_y_pais_del_bcie():
+
+def cantidad_de_aprobaciones_por_sector_y_pais_del_bcie() -> DataToolOutput:
     """Retorna la cantidad de aprobaciones del Banco Centroamericano de Integración económica por país."""
-
     source = "https://datosabiertos.bcie.org/dataset/45876cb4-d8b8-4635-b999-0df1c19b831a/resource/ce88a753-57f5-4266-a57e-394600c8435d/download/aprobaciones-prestamos.csv"
+    structured_content = {"sources": [source]}
 
-    df = pd.read_csv(source) \
-                .groupby(['PAIS']) \
-                .size() \
-                .reset_index(name='count') \
-                .sort_values('count', ascending=False)
+    try:
+        df = pd.read_csv(source)
+        df = (
+            df.groupby(["PAIS"])
+            .size()
+            .reset_index(name="count")
+            .sort_values("count", ascending=False)
+        )
+        records = df.values.tolist()
 
-    result = df.to_dict(orient='records')
-    return json.dumps(result, default=str)
+        # Build markdown list
+        markdown_lines = ["## Aprobaciones del BCIE por País:\n"]
+        for country, count in records:
+            markdown_lines.append(f"- **{country}**: {count} aprobaciones")
+        markdown_lines.append(f"Fuente de los datos: {source}")
+        message = "\n".join(markdown_lines)
+
+        content = TextContent(type="text", text=message)
+        structured_content["table"] = records
+        return CallToolResult(content=[content], structuredContent=structured_content)
+
+    except Exception:
+        message = "Hubo un error interno procesando los datos."
+        content = TextContent(type="text", text=message)
+        return CallToolResult(content=[content], structuredContent=structured_content, isError=True)
