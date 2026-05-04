@@ -3,7 +3,7 @@ import pandas as pd
 from mcp.types import CallToolResult, TextContent
 
 from mcp_server import DataToolOutput
-from mcp_server.responses import text_result
+from mcp_server.results import text_result
 
 
 def historic_project_per_country_iadb() -> DataToolOutput:
