@@ -3,12 +3,12 @@ import pandas as pd
 from mcp.types import CallToolResult, TextContent
 
 from mcp_server import DataToolOutput
+from mcp_server.responses import text_result
 
 
 def historic_project_per_country_iadb() -> DataToolOutput:
     """Returns the historic count of projects by country of the IADB."""
     source = "https://data.iadb.org/file/download/fc342d1e-fdc9-4590-8d47-c4499a89d381"
-    structured_content = {"sources": [source]}
     try:
         df = (pd.read_csv(source)
             .groupby("cntry_nm")
@@ -25,19 +25,15 @@ def historic_project_per_country_iadb() -> DataToolOutput:
         markdown_lines.append(f"Source of the data: {source}")
         message = "\n".join(markdown_lines)
 
-        content = TextContent(type="text", text=message)
-        structured_content["table"] = records
-        return CallToolResult(content=[content], structuredContent=structured_content)
+        return text_result(message, source, table=records)
     except Exception:
         message = "There was an internal error processing the data."
-        content = TextContent(type="text", text=message)
-        return CallToolResult(content=[content], structuredContent=structured_content, isError=True)
+        return text_result(message, source_url=source)
 
 
 def cantidad_de_aprobaciones_por_sector_y_pais_del_bcie() -> DataToolOutput:
     """Retorna la cantidad de aprobaciones del Banco Centroamericano de Integración económica por país."""
     source = "https://datosabiertos.bcie.org/dataset/45876cb4-d8b8-4635-b999-0df1c19b831a/resource/ce88a753-57f5-4266-a57e-394600c8435d/download/aprobaciones-prestamos.csv"
-    structured_content = {"sources": [source]}
 
     try:
         df = pd.read_csv(source)
@@ -56,11 +52,7 @@ def cantidad_de_aprobaciones_por_sector_y_pais_del_bcie() -> DataToolOutput:
         markdown_lines.append(f"Fuente de los datos: {source}")
         message = "\n".join(markdown_lines)
 
-        content = TextContent(type="text", text=message)
-        structured_content["table"] = records
-        return CallToolResult(content=[content], structuredContent=structured_content)
-
+        return text_result(message, source, table=records)
     except Exception:
         message = "Hubo un error interno procesando los datos."
-        content = TextContent(type="text", text=message)
-        return CallToolResult(content=[content], structuredContent=structured_content, isError=True)
+        return text_result(message, source_url=source)
